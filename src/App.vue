@@ -1,13 +1,14 @@
 <template>
   <div id="app">
     <nav>
-      <ul>
-        <li><router-link to="/">Home</router-link></li>
-        <li><router-link to="/quote">Generate Quote</router-link></li>
-        <li><router-link to="/defaults">Set Default Values</router-link></li>
-      </ul>
+      <router-link to="/">Home</router-link>
+      <router-link to="/quote">Generate Quote</router-link>
+      <router-link to="/defaults">Set Default Values</router-link>
+      <router-link to="/add-product">Add Product</router-link>
+      <router-link to="/add-category">Add Category</router-link>
+      <router-link to="/product-chart">Product Chart</router-link> <!-- New navigation link -->
     </nav>
-    <router-view />
+    <router-view/>
   </div>
 </template>
 
@@ -18,20 +19,16 @@ export default {
 </script>
 
 <style>
-nav ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 10px;
+nav {
+  padding: 1em;
+  background-color: #f8f9fa;
 }
-nav ul li {
-  display: inline;
-}
-nav ul li a {
+nav a {
+  margin-right: 1em;
   text-decoration: none;
-  color: #000;
+  color: #007bff;
 }
-nav ul li a.router-link-active {
-  font-weight: bold;
+nav a:hover {
+  text-decoration: underline;
 }
 </style>

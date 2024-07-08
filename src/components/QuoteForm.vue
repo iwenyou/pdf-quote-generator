@@ -2,20 +2,28 @@
   <div>
     <h1>Generate Your Quote</h1>
     <form @submit.prevent="generateQuote">
-      <div v-if="quoteData">
+      <div>
+        <label for="clientName">Client Name:</label>
+        <input type="text" v-model="formData.client.name" placeholder="Enter client name" required />
+
+        <label for="clientAddress">Client Address:</label>
+        <input type="text" v-model="formData.client.address" placeholder="Enter client address" required />
+      </div>
+
+      <div v-if="categories && products">
         <table>
           <thead>
             <tr>
               <th>Category</th>
-              <th>Type</th>
-              <th>Area</th>
-              <th>Material</th>
+              <th>Product Type</th>
+              <th>Part Name</th>
+              <th>Material Name</th>
+              <th>Cost</th>
               <th>Height</th>
               <th>Width</th>
               <th>Thickness</th>
               <th>Number</th>
               <th>Coefficient</th>
-              <th>In USD</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -24,7 +32,8 @@
               v-for="(row, rowIndex) in rows"
               :key="rowIndex"
               :row="row"
-              :categories="quoteData.category"
+              :categories="categories"
+              :products="products"
               :defaults="defaults"
               :index="rowIndex"
               @update-row="updateRow"
@@ -33,8 +42,8 @@
           </tbody>
         </table>
         <button type="button" @click="addRow">Add Row</button>
-        <button type="submit">Generate PDF</button>
       </div>
+      <button type="submit">Generate PDF</button>
     </form>
     <div v-if="error" class="error">{{ error }}</div>
   </div>
@@ -53,10 +62,13 @@ export default {
   data() {
     return {
       formData: {
-        name: '',
-        email: ''
+        client: {
+          name: '',
+          address: ''
+        }
       },
-      quoteData: null,
+      categories: [],
+      products: [],
       defaults: {
         height: 0,
         width: 0,
@@ -69,20 +81,27 @@ export default {
     };
   },
   methods: {
-    async fetchQuoteData() {
+    async fetchCategories() {
       try {
-        const response = await axios.get('http://localhost:3000/quotes');
-        console.log('Quote data:', response.data);
-        this.quoteData = response.data[0]; // Assuming there's only one document
+        const response = await axios.get('http://localhost:3000/categories');
+        this.categories = response.data;
       } catch (err) {
-        this.error = 'Failed to fetch quote data.';
+        this.error = 'Failed to fetch categories.';
+        console.error(err);
+      }
+    },
+    async fetchProducts() {
+      try {
+        const response = await axios.get('http://localhost:3000/products');
+        this.products = response.data;
+      } catch (err) {
+        this.error = 'Failed to fetch products.';
         console.error(err);
       }
     },
     async fetchDefaults() {
       try {
         const response = await axios.get('http://localhost:3000/defaults');
-        console.log('Defaults:', response.data);
         this.defaults = response.data || {
           height: 0,
           width: 0,
@@ -90,24 +109,21 @@ export default {
           number: 0,
           coefficient: 0
         };
-        console.log('Set defaults:', this.defaults);
       } catch (err) {
         this.error = 'Error fetching default values.';
         console.error(err);
       }
     },
     addRow() {
-      console.log('Adding row with defaults:', this.defaults);
       this.rows.push({
         selectedCategory: '',
-        selectedType: '',
-        selectedArea: '',
-        selectedMaterial: '',
-        types: null,
-        areas: null,
-        items: [{
-          area: '',
-          selectedMaterial: '',
+        selectedProduct: '',
+        parts: [{
+          name: '',
+          materials: [{
+            name: '',
+            cost: 0
+          }],
           size: {
             height: this.defaults.height,
             width: this.defaults.width,
@@ -116,27 +132,19 @@ export default {
           count: {
             number: this.defaults.number,
             coefficient: this.defaults.coefficient
-          },
-          inUSD: 0
+          }
         }]
       });
-      console.log('Current rows:', this.rows);
     },
     updateRow(index, updatedRow) {
-      console.log('Updating row at index:', index, 'with data:', updatedRow);
-      this.rows.splice(index, 1, { ...updatedRow }); // Use splice to replace the row in a reactive way
-      console.log('Current rows after update:', this.rows);
+      this.rows.splice(index, 1, { ...updatedRow });
     },
     deleteRow(index) {
-      console.log('Deleting row at index:', index);
       this.rows.splice(index, 1);
-      console.log('Current rows after deletion:', this.rows);
     },
     async generateQuote() {
       try {
-        console.log('Generating PDF with form data:', this.formData);
-        // Save quote to the database
-        const response = await axios.post('http://localhost:3000/quotes', this.formData);
+        const response = await axios.post('http://localhost:3000/quotes', { ...this.formData, rows: this.rows });
         console.log('Quote saved:', response.data);
 
         // Generate PDF
@@ -146,29 +154,31 @@ export default {
         const imgData = 'data:image/jpeg;base64,...'; // Base64 encoded image data
         doc.addImage(imgData, 'JPEG', 15, 10, 50, 25);
 
-        // Add user details
-        doc.text(20, 50, `Name: ${this.formData.name}`);
-        doc.text(20, 60, `Email: ${this.formData.email}`);
+        // Add client details
+        doc.text(20, 50, `Name: ${this.formData.client.name}`);
+        doc.text(20, 60, `Address: ${this.formData.client.address}`);
 
         // Add table with quote details
-        const tableColumn = ['Category', 'Type', 'Area', 'Material', 'Height', 'Width', 'Thickness', 'Number', 'Coefficient', 'In USD'];
+        const tableColumn = ['Category', 'Product Type', 'Part Name', 'Material Name', 'Cost', 'Height', 'Width', 'Thickness', 'Number', 'Coefficient'];
         const tableRows = [];
 
         this.rows.forEach(row => {
-          row.items.forEach(item => {
-            const dataRow = [
-              row.selectedCategory,
-              row.selectedType,
-              item.area,
-              item.selectedMaterial,
-              item.size.height,
-              item.size.width,
-              item.size.thickness,
-              item.count.number,
-              item.count.coefficient,
-              `$${item.inUSD}`
-            ];
-            tableRows.push(dataRow);
+          row.parts.forEach(part => {
+            part.materials.forEach(material => {
+              const dataRow = [
+                row.selectedCategory,
+                row.selectedProduct,
+                part.name,
+                material.name,
+                `$${material.cost}`,
+                part.size.height,
+                part.size.width,
+                part.size.thickness,
+                part.count.number,
+                part.count.coefficient
+              ];
+              tableRows.push(dataRow);
+            });
           });
         });
 
@@ -183,14 +193,12 @@ export default {
     }
   },
   async mounted() {
-    console.log('Component mounted');
-    await this.fetchQuoteData();
+    await this.fetchCategories();
+    await this.fetchProducts();
     await this.fetchDefaults();
     if (this.rows.length === 0) {
-      console.log('No rows found, adding initial row');
-      this.addRow(); // Add initial row with defaults if no rows exist
+      this.addRow();
     }
-    console.log('Component initialization complete');
   }
 };
 </script>
@@ -204,7 +212,7 @@ table {
   border-collapse: collapse;
 }
 th, td {
-  border: 1px solid black; /* Add border to td for proper table alignment */
+  border: 1px solid black;
   padding: 8px;
   text-align: left;
 }

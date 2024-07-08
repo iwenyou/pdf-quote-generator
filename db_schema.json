@@ -131,3 +131,88 @@
         }
     }
 }
+
+
+
+{
+    "schemas": {
+      "Quote": {
+        "category": "String",
+        "productType": "String",
+        "parts": {
+          "type": "Array",
+          "items": {
+            "type": "Object",
+            "properties": {
+              "name": "String",
+              "materials": {
+                "type": "Array",
+                "items": {
+                  "type": "Object",
+                  "properties": {
+                    "name": "String",
+                    "cost": "Number"
+                  }
+                }
+              }
+            }
+          }
+        }，
+        "size": {
+          "height": "Number",
+          "width": "Number",
+          "thickness": "Number"
+        },
+        "count": {
+          "number": "Number",
+          "coefficient": "Number"
+        },
+        "fees": {
+          "shipping": "Number",
+          "importTax": "Number",
+          "storageFee": "Number",
+          "exchange": "Number"
+        },
+        "results": {
+          "cost": "Number",
+          "finalPrice": "Number",
+          "inUSD": "Number",
+          "profit": "Number"
+        }
+      },
+      "DefaultValues": {
+        "height": "Number",
+        "width": "Number",
+        "thickness": "Number",
+        "number": "Number",
+        "coefficient": "Number"
+      },
+      "Category": {
+        "name": "String",
+      },
+      "Product": {
+        "category": "String",
+        "productType": "String",
+        "parts": {
+          "type": "Array",
+          "items": {
+            "type": "Object",
+            "properties": {
+              "name": "String",
+              "materials": {
+                "type": "Array",
+                "items": {
+                  "type": "Object",
+                  "properties": {
+                    "name": "String",
+                    "cost": "Number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  

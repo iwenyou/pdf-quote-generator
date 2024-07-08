@@ -1,52 +1,39 @@
 <template>
-  <tr>
-    <td>
+  <tr v-for="(part, partIndex) in localRow.parts" :key="partIndex">
+    <td v-if="partIndex === 0" :rowspan="localRow.parts.length">
       <select v-model="localRow.selectedCategory" @change="handleCategoryChange">
         <option value="" disabled>Select Category</option>
-        <option v-for="(value, key) in categories" :key="key" :value="key">{{ key }}</option>
+        <option v-for="category in categories" :key="category._id" :value="category._id">{{ category.name }}</option>
       </select>
     </td>
-    <td>
-      <select v-if="localRow.types" v-model="localRow.selectedType" @change="handleTypeChange">
-        <option value="" disabled>Select Type</option>
-        <option v-for="(value, key) in localRow.types" :key="key" :value="key">{{ key }}</option>
+    <td v-if="partIndex === 0" :rowspan="localRow.parts.length">
+      <select v-model="localRow.selectedProduct" @change="handleProductChange">
+        <option value="" disabled>Select Product</option>
+        <option v-for="product in filteredProducts" :key="product._id" :value="product._id">{{ product.productType }}</option>
       </select>
-      <div v-else>Select Category first</div>
+    </td>
+    <td>{{ part.name }}</td>
+    <td v-for="(material, materialIndex) in part.materials" :key="materialIndex">
+      <input type="text" v-model="material.name" placeholder="Enter material name" />
+      <input type="number" v-model.number="material.cost" placeholder="Enter cost" />
     </td>
     <td>
-      <select v-if="localRow.areas" v-model="localRow.selectedArea" @change="handleAreaChange">
-        <option value="" disabled>Select Area</option>
-        <option v-for="(value, key) in localRow.areas" :key="key" :value="key">{{ key }}</option>
-      </select>
-      <div v-else>Select Type first</div>
+      <input type="number" v-model.number="part.size.height" placeholder="Height" />
     </td>
     <td>
-      <select v-if="localRow.selectedArea && localRow.areas" v-model="localRow.items[0].selectedMaterial">
-        <option value="" disabled>Select Material</option>
-        <option v-for="(value, key) in localRow.areas" :key="key" :value="key">{{ key }}</option>
-      </select>
-      <div v-else>Select Area first</div>
-    </td>
-    <td v-for="(item, index) in localRow.items" :key="`height-${index}`">
-      <input type="number" v-model.number="item.size.height" :placeholder="defaults.height" />
-    </td>
-    <td v-for="(item, index) in localRow.items" :key="`width-${index}`">
-      <input type="number" v-model.number="item.size.width" :placeholder="defaults.width" />
-    </td>
-    <td v-for="(item, index) in localRow.items" :key="`thickness-${index}`">
-      <input type="number" v-model.number="item.size.thickness" :placeholder="defaults.thickness" />
-    </td>
-    <td v-for="(item, index) in localRow.items" :key="`number-${index}`">
-      <input type="number" v-model.number="item.count.number" :placeholder="defaults.number" />
-    </td>
-    <td v-for="(item, index) in localRow.items" :key="`coefficient-${index}`">
-      <input type="number" v-model.number="item.count.coefficient" :placeholder="defaults.coefficient" />
-    </td>
-    <td v-for="(item, index) in localRow.items" :key="`inUSD-${index}`">
-      {{ item.inUSD }}
+      <input type="number" v-model.number="part.size.width" placeholder="Width" />
     </td>
     <td>
-      <button @click="deleteRow(index)">Delete</button>
+      <input type="number" v-model.number="part.size.thickness" placeholder="Thickness" />
+    </td>
+    <td>
+      <input type="number" v-model.number="part.count.number" placeholder="Number" />
+    </td>
+    <td>
+      <input type="number" v-model.number="part.count.coefficient" placeholder="Coefficient" />
+    </td>
+    <td>
+      <button type="button" @click="deletePart(partIndex)">Delete Part</button>
     </td>
   </tr>
 </template>
@@ -55,94 +42,57 @@
 export default {
   props: {
     row: Object,
-    categories: Object,
+    categories: Array,
+    products: Array,
     defaults: Object,
     index: Number
   },
   emits: ['update-row', 'delete-row'],
   data() {
     return {
-      localRow: { ...this.row }
+      localRow: JSON.parse(JSON.stringify(this.row)) // Create a deep copy of the row prop
     };
+  },
+  computed: {
+    filteredProducts() {
+      return this.products.filter(product => product.category === this.localRow.selectedCategory);
+    }
   },
   watch: {
     row: {
       handler(newValue) {
-        console.log('Prop row updated:', newValue);
-        this.localRow = { ...newValue };
+        this.localRow = JSON.parse(JSON.stringify(newValue)); // Update the local copy when the prop changes
       },
       deep: true
     }
   },
-  mounted() {
-    console.log('TableRow mounted with row:', this.row);
-  },
   methods: {
     handleCategoryChange() {
-      console.log('Category changed to:', this.localRow.selectedCategory);
-      this.localRow.selectedType = '';
-      this.localRow.selectedArea = '';
-      this.localRow.types = this.categories[this.localRow.selectedCategory];
-      this.localRow.areas = null;
-      this.localRow.items = [{
-        area: '',
-        selectedMaterial: '',
-        size: {
-          height: this.defaults?.height || 0,
-          width: this.defaults?.width || 0,
-          thickness: this.defaults?.thickness || 0
-        },
-        count: {
-          number: this.defaults?.number || 0,
-          coefficient: this.defaults?.coefficient || 0
-        },
-        inUSD: 0
-      }];
+      this.localRow.selectedProduct = '';
       this.$emit('update-row', this.index, this.localRow);
     },
-    handleTypeChange() {
-      console.log('Type changed to:', this.localRow.selectedType);
-      this.localRow.selectedArea = '';
-      this.localRow.areas = this.localRow.types[this.localRow.selectedType].material || this.localRow.types[this.localRow.selectedType];
-      this.localRow.items = [{
-        area: '',
-        selectedMaterial: '',
-        size: {
-          height: this.defaults?.height || 0,
-          width: this.defaults?.width || 0,
-          thickness: this.defaults?.thickness || 0
-        },
-        count: {
-          number: this.defaults?.number || 0,
-          coefficient: this.defaults?.coefficient || 0
-        },
-        inUSD: 0
-      }];
+    handleProductChange() {
+      const selectedProduct = this.products.find(product => product._id === this.localRow.selectedProduct);
+      if (selectedProduct) {
+        this.localRow.parts = selectedProduct.parts.map(part => ({
+          ...part,
+          materials: part.materials.map(material => ({ ...material })),
+          size: {
+            height: this.defaults.height,
+            width: this.defaults.width,
+            thickness: this.defaults.thickness
+          },
+          count: {
+            number: this.defaults.number,
+            coefficient: this.defaults.coefficient
+          }
+        }));
+      }
       this.$emit('update-row', this.index, this.localRow);
     },
-    handleAreaChange() {
-      console.log('Area changed to:', this.localRow.selectedArea);
-      const selectedMaterial = this.localRow.areas[this.localRow.selectedArea];
-      this.localRow.items = [{
-        area: this.localRow.selectedArea,
-        selectedMaterial: '',
-        size: {
-          height: this.defaults?.height || 0,
-          width: this.defaults?.width || 0,
-          thickness: this.defaults?.thickness || 0
-        },
-        count: {
-          number: this.defaults?.number || 0,
-          coefficient: this.defaults?.coefficient || 0
-        },
-        inUSD: selectedMaterial.price ? selectedMaterial.price.unitPrice : 0
-      }];
-      this.$emit('update-row', this.index, this.localRow);
-    },
-    deleteRow(itemIndex) {
-      console.log('Deleting item at index:', itemIndex);
-      this.localRow.items.splice(itemIndex, 1);
-      if (this.localRow.items.length === 0) {
+    deletePart(partIndex) {
+      this.localRow.parts.splice(partIndex, 1);
+      if (this.localRow.parts.length === 0) {
         this.$emit('delete-row', this.index);
       } else {
         this.$emit('update-row', this.index, this.localRow);
