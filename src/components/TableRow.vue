@@ -1,44 +1,52 @@
 <template>
-  <tr v-for="(item, itemIndex) in localRow.items" :key="itemIndex">
-    <td v-if="itemIndex === 0" :rowspan="localRow.items.length">
+  <tr>
+    <td>
       <select v-model="localRow.selectedCategory" @change="handleCategoryChange">
         <option value="" disabled>Select Category</option>
         <option v-for="(value, key) in categories" :key="key" :value="key">{{ key }}</option>
       </select>
     </td>
-    <td v-if="itemIndex === 0" :rowspan="localRow.items.length">
+    <td>
       <select v-if="localRow.types" v-model="localRow.selectedType" @change="handleTypeChange">
         <option value="" disabled>Select Type</option>
         <option v-for="(value, key) in localRow.types" :key="key" :value="key">{{ key }}</option>
       </select>
+      <div v-else>Select Category first</div>
     </td>
-    <td>{{ item.area }}</td>
-    <td v-if="localRow.areas">
-      <select v-model="item.selectedMaterial">
+    <td>
+      <select v-if="localRow.areas" v-model="localRow.selectedArea" @change="handleAreaChange">
+        <option value="" disabled>Select Area</option>
+        <option v-for="(value, key) in localRow.areas" :key="key" :value="key">{{ key }}</option>
+      </select>
+      <div v-else>Select Type first</div>
+    </td>
+    <td>
+      <select v-if="localRow.selectedArea && localRow.areas" v-model="localRow.items[0].selectedMaterial">
         <option value="" disabled>Select Material</option>
         <option v-for="(value, key) in localRow.areas" :key="key" :value="key">{{ key }}</option>
       </select>
+      <div v-else>Select Area first</div>
     </td>
-    <td>
+    <td v-for="(item, index) in localRow.items" :key="`height-${index}`">
       <input type="number" v-model.number="item.size.height" :placeholder="defaults.height" />
     </td>
-    <td>
+    <td v-for="(item, index) in localRow.items" :key="`width-${index}`">
       <input type="number" v-model.number="item.size.width" :placeholder="defaults.width" />
     </td>
-    <td>
+    <td v-for="(item, index) in localRow.items" :key="`thickness-${index}`">
       <input type="number" v-model.number="item.size.thickness" :placeholder="defaults.thickness" />
     </td>
-    <td>
+    <td v-for="(item, index) in localRow.items" :key="`number-${index}`">
       <input type="number" v-model.number="item.count.number" :placeholder="defaults.number" />
     </td>
-    <td>
+    <td v-for="(item, index) in localRow.items" :key="`coefficient-${index}`">
       <input type="number" v-model.number="item.count.coefficient" :placeholder="defaults.coefficient" />
     </td>
-    <td>
+    <td v-for="(item, index) in localRow.items" :key="`inUSD-${index}`">
       {{ item.inUSD }}
     </td>
     <td>
-      <button @click="deleteRow(itemIndex)">Delete</button>
+      <button @click="deleteRow(index)">Delete</button>
     </td>
   </tr>
 </template>
@@ -96,8 +104,8 @@ export default {
       console.log('Type changed to:', this.localRow.selectedType);
       this.localRow.selectedArea = '';
       this.localRow.areas = this.localRow.types[this.localRow.selectedType].material || this.localRow.types[this.localRow.selectedType];
-      this.localRow.items = Object.keys(this.localRow.areas).map(key => ({
-        area: key,
+      this.localRow.items = [{
+        area: '',
         selectedMaterial: '',
         size: {
           height: this.defaults?.height || 0,
@@ -108,8 +116,27 @@ export default {
           number: this.defaults?.number || 0,
           coefficient: this.defaults?.coefficient || 0
         },
-        inUSD: this.localRow.areas[key].price ? this.localRow.areas[key].price.unitPrice : 0
-      }));
+        inUSD: 0
+      }];
+      this.$emit('update-row', this.index, this.localRow);
+    },
+    handleAreaChange() {
+      console.log('Area changed to:', this.localRow.selectedArea);
+      const selectedMaterial = this.localRow.areas[this.localRow.selectedArea];
+      this.localRow.items = [{
+        area: this.localRow.selectedArea,
+        selectedMaterial: '',
+        size: {
+          height: this.defaults?.height || 0,
+          width: this.defaults?.width || 0,
+          thickness: this.defaults?.thickness || 0
+        },
+        count: {
+          number: this.defaults?.number || 0,
+          coefficient: this.defaults?.coefficient || 0
+        },
+        inUSD: selectedMaterial.price ? selectedMaterial.price.unitPrice : 0
+      }];
       this.$emit('update-row', this.index, this.localRow);
     },
     deleteRow(itemIndex) {
@@ -128,10 +155,10 @@ export default {
 <style scoped>
 select, input {
   width: 100%;
-  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
-  padding: 2px; /* Adds some padding for better appearance */
+  box-sizing: border-box;
+  padding: 2px;
 }
 td {
-  border: 1px solid black; /* Add border to td */
+  border: 1px solid black;
 }
 </style>

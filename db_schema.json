@@ -94,3 +94,40 @@
         "profit": 0
     }
 }
+
+{
+    "catagory":{
+        "ProductType(this should a dropdown menu to allow user to choose from existing product type":{
+            "name of the product1":{
+                "name": "Name of the product(a text input from user",
+                "parts":{
+                    "name of the part1":{
+                        "name": "name of the part1(text input from user)",
+                        "material":{
+                            "name of the material 1":{
+                                "name": "name of the material 1(text input from user",
+                                "cost": "a number(text input from user",
+                            },
+                            "name of the material 2":{
+                                "name": "name of the material 2(text input from user",
+                                "cost": "a number(text input from user",
+                            }
+                        },
+                        "name of the part2":{
+                            "name": "name of the part1(text input from user)",
+                            "material":{
+                                "name of the material 3":{
+                                    "name": "name of the material 3(text input from user",
+                                    "cost": "a number(text input from user",
+                                },
+                                "name of the material 4":{
+                                    "name": "name of the material 4(text input from user",
+                                    "cost": "a number(text input from user",
+                                }
+                            }
+                    }
+                }
+            }
+        }
+    }
+}
