@@ -1,0 +1,96 @@
+{
+    "catagory":{
+        "cabinets":{
+            "kitchenCabinet":{
+                "topCabinet":{
+                    "type":"top",
+                    "material":{
+                            "woodVeneer":{
+                                "type":"woodVeneer",
+                                "price":{
+                                    "unitPrice": 1000
+                                }
+                            },
+                            "decorPanel":{
+                                "type":"decorPanel",
+                                "price":{
+                                    "unitPrice": 1000
+                                }
+                            }
+                        }             
+                    },
+                "buttomCabinet":{
+                    "type":"buttom",
+                    "material":{
+                        "woodVeneer":{
+                            "type":"woodVeneer",
+                            "price":{
+                                "unitPrice": 1000
+                            }
+                        },
+                        "decorPanel":{
+                            "type":"decorPanel",
+                            "price":{
+                                "unitPrice": 1000
+                            }
+                        }
+                    }  
+                },
+
+            },
+            "otherCabinet":{
+                "type":"other",
+                "material":{
+                    "woodVeneer":{
+                        "type":"woodVeneer",
+                        "price":{
+                            "unitPrice": 1000
+                        }
+                    },
+                    "decorPanel":{
+                        "type":"decorPanel",
+                        "price":{
+                            "unitPrice": 1000
+                        }
+                    }
+                }  
+            }
+        },
+        "doors":{
+            "InteriorDoor":{
+                "type":"interior",
+                "unitPrice": 1000,
+                "price":{
+                    "unitPrice": 1000
+                }
+            },
+            "ExteriorDoor":{
+                "type":"exterior",
+                "price":{
+                    "unitPrice": 1000
+                }
+            }
+        }       
+    },
+    "size":{
+        "height": 1,
+        "width": 1,
+        "thickness": 1
+    },
+    "count":{
+        "number": 1,
+        "coefficient": 1
+    },
+    "fees":{
+        "shipping": 2500,
+        "importTax": 0.3,
+        "storageFee": 1000,
+        "exchange": 7.3
+    },
+    "results":{
+        "cost": 0,
+        "finalPrice": 0,
+        "inUSD": 0,
+        "profit": 0
+    }
+}
