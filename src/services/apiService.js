@@ -18,6 +18,7 @@ export async function fetchProducts() {
 export async function fetchProductsByCategory(categoryId) {
     try {
         const response = await axios.get(`http://localhost:3000/products?category=${categoryId}`);
+        console.log("fetchProductsByCategory: ",  response.data)
         return response.data;
       } catch (err) {
         console.error('Error fetching products by categoryId:', err);

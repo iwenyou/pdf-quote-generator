@@ -13,9 +13,11 @@
       </select>
     </td>
     <td>{{ part.name }}</td>
-    <td v-for="(material, materialIndex) in part.materials" :key="materialIndex">
-      <input type="text" v-model="material.name" placeholder="Enter material name" />
-      <input type="number" v-model.number="material.cost" placeholder="Enter cost" />
+    <td>
+      <input type="text" v-model="part.materials[0].name" placeholder="Enter material name" />
+    </td>
+    <td>
+      <input type="number" v-model.number="part.materials[0].cost" placeholder="Enter cost" />
     </td>
     <td>
       <input type="number" v-model.number="part.size.height" placeholder="Height" />
@@ -121,11 +123,16 @@ export default {
 
 <style scoped>
 select, input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 2px;
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  padding: 5px; /* Add some padding for better appearance */
 }
 td {
-  border: 1px solid black;
+  border: 1px solid black; /* Add border to td for proper table alignment */
+  padding: 8px; /* Add padding to table cells */
+}
+th {
+  padding: 8px; /* Add padding to table headers */
 }
 </style>
+
