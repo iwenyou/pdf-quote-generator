@@ -12,7 +12,6 @@
         @update-row="updateRow"
         @delete-row="deleteRow"
       />
-      <button type="submit">Generate PDF</button>
     </form>
     <div v-if="error" class="error">{{ error }}</div>
   </div>
@@ -56,11 +55,5 @@ export default {
 };
 </script>
 
-<style scoped>
-.error {
-  color: red;
-}
-button {
-  margin-top: 10px;
-}
-</style>
+<style src="@/styles/TableStyles.css"></style>
+

@@ -11,7 +11,7 @@
     <div v-if="message" class="message">{{ message }}</div>
 
     <h2>Existing Categories</h2>
-    <table v-if="categories.length">
+    <table v-if="categories.length" class="table">
       <thead>
         <tr>
           <th>Category Name</th>
@@ -87,19 +87,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.message {
-  color: green;
-}
-label {
-  display: block;
-  margin-top: 10px;
-}
-input {
-  display: block;
-  margin-top: 5px;
-}
-button {
-  margin-top: 10px;
-}
-</style>
+<style src="@/styles/TableStyles.css"></style>

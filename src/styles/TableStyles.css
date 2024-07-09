@@ -1,0 +1,22 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th, .table td {
+    border: 1px solid black; /* Add border to cells for proper alignment */
+    padding: 8px; /* Add padding to cells */
+    text-align: left;
+  }
+  
+  .table th {
+    background-color: #f2f2f2; /* Add a background color to table headers */
+  }
+
+  button {
+    margin-top: 10px;
+  }
+
+  .error {
+    color: red;
+  }
