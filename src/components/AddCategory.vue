@@ -14,12 +14,16 @@
     <table v-if="categories.length">
       <thead>
         <tr>
-          <th>Name</th>
+          <th>Category Name</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="category in categories" :key="category._id">
+        <tr v-for="(category, index) in categories" :key="category._id">
           <td>{{ category.name }}</td>
+          <td>
+            <button type="button" @click="deleteCategory(index)">Delete</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -60,6 +64,17 @@ export default {
         console.error('Error fetching categories:', err);
       }
     },
+    async deleteCategory(index) {
+      const categoryId = this.categories[index]._id;
+      try {
+        await axios.delete(`http://localhost:3000/categories/${categoryId}`);
+        this.categories.splice(index, 1);
+        this.message = 'Category deleted successfully!';
+      } catch (err) {
+        this.message = 'Error deleting category.';
+        console.error(err);
+      }
+    },
     resetForm() {
       this.category = {
         name: ''
@@ -80,7 +95,7 @@ label {
   display: block;
   margin-top: 10px;
 }
-input, select {
+input {
   display: block;
   margin-top: 5px;
 }

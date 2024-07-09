@@ -9,7 +9,7 @@
     <td v-if="partIndex === 0" :rowspan="localRow.parts.length">
       <select v-model="localRow.selectedProduct" @change="handleProductChange">
         <option value="" disabled>Select Product</option>
-        <option v-for="product in filteredProducts" :key="product._id" :value="product._id">{{ product.productType }}</option>
+        <option v-for="productByCatagory in productsByCatagory" :key="productByCatagory._id" :value="productByCatagory._id">{{ productByCatagory.productType }}</option>
       </select>
     </td>
     <td>{{ part.name }}</td>
@@ -39,9 +39,15 @@
 </template>
 
 <script>
+import { fetchProductsByCategory } from '@/services/apiService';
+
 export default {
   props: {
-    row: Object,
+    row: {
+      type: Object,
+      required: true,
+      default: () => ({ parts: [] })
+    },
     categories: Array,
     products: Array,
     defaults: Object,
@@ -50,29 +56,40 @@ export default {
   emits: ['update-row', 'delete-row'],
   data() {
     return {
-      localRow: JSON.parse(JSON.stringify(this.row)) // Create a deep copy of the row prop
+      localRow: this.row ? JSON.parse(JSON.stringify(this.row)) : { parts: [] },
+      productsByCatagory: [] // Local state for filtered products
     };
-  },
-  computed: {
-    filteredProducts() {
-      return this.products.filter(product => product.category === this.localRow.selectedCategory);
-    }
   },
   watch: {
     row: {
       handler(newValue) {
-        this.localRow = JSON.parse(JSON.stringify(newValue)); // Update the local copy when the prop changes
+        this.localRow = newValue ? JSON.parse(JSON.stringify(newValue)) : { parts: [] };
       },
       deep: true
+    },
+    'localRow.selectedCategory'(newCategory) {
+      console.log('Selected category changed:', newCategory);
+      this.handleCategoryChange();
+    },
+    'localRow.selectedProduct'(newProduct) {
+      console.log('Selected product changed:', newProduct);
     }
   },
   methods: {
-    handleCategoryChange() {
+    async handleCategoryChange() {
+      console.log('Category changed to:', this.localRow.selectedCategory);
       this.localRow.selectedProduct = '';
+      try {
+        const productsByCatagory = await fetchProductsByCategory(this.localRow.selectedCategory);
+        this.productsByCatagory = productsByCatagory; // Update local state
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
       this.$emit('update-row', this.index, this.localRow);
     },
     handleProductChange() {
-      const selectedProduct = this.products.find(product => product._id === this.localRow.selectedProduct);
+      console.log('Product changed to:', this.localRow.selectedProduct);
+      const selectedProduct = this.productsByCatagory.find(product => product._id === this.localRow.selectedProduct);
       if (selectedProduct) {
         this.localRow.parts = selectedProduct.parts.map(part => ({
           ...part,

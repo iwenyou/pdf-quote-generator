@@ -6,7 +6,6 @@
       <router-link to="/defaults">Set Default Values</router-link>
       <router-link to="/add-product">Add Product</router-link>
       <router-link to="/add-category">Add Category</router-link>
-      <router-link to="/product-chart">Product Chart</router-link> <!-- New navigation link -->
     </nav>
     <router-view/>
   </div>
