@@ -1,40 +1,59 @@
 <template>
   <div>
-    <h1>Add a New Product</h1>
-    <form @submit.prevent="saveProduct">
-      <div>
+    <h1>Add or Edit a Product</h1>
+    <form @submit.prevent="saveProduct" class="product-form">
+      <div class="form-group">
         <label for="category">Category:</label>
         <select v-model="product.category" @change="fetchProductTypes">
           <option value="" disabled>Select Category</option>
           <option v-for="category in categories" :key="category._id" :value="category._id">{{ category.name }}</option>
         </select>
       </div>
-      <div v-if="product.category">
+      <div v-if="product.category" class="form-group">
         <label for="productType">Product Type:</label>
         <input type="text" v-model="product.productType" placeholder="Enter product type" />
       </div>
       <div v-if="product.productType">
-        <div v-for="(part, partIndex) in product.parts" :key="partIndex">
-          <label>Part Name:</label>
-          <input type="text" v-model="part.name" placeholder="Enter part name" />
-          <div v-for="(material, materialIndex) in part.materials" :key="materialIndex">
-            <label>Material Name:</label>
-            <input type="text" v-model="material.name" placeholder="Enter material name" />
-            <label>Cost:</label>
-            <input type="number" v-model.number="material.cost" placeholder="Enter cost" />
-            <button type="button" @click="removeMaterial(partIndex, materialIndex)">Remove Material</button>
-          </div>
-          <button type="button" @click="addMaterial(partIndex)">Add Material</button>
-          <button type="button" @click="removePart(partIndex)">Remove Part</button>
-        </div>
-        <button type="button" @click="addPart">Add Part</button>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Part Name</th>
+              <th>Material Name</th>
+              <th>Cost</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(part, partIndex) in product.parts" :key="partIndex">
+              <td>
+                <input type="text" v-model="part.name" placeholder="Enter part name" />
+              </td>
+              <td>
+                <div v-for="(material, materialIndex) in part.materials" :key="materialIndex" class="material-section">
+                  <input type="text" v-model="material.name" placeholder="Enter material name" />
+                  <button type="button" @click="removeMaterial(partIndex, materialIndex)" class="remove-btn">Remove Material</button>
+                </div>
+              </td>
+              <td>
+                <div v-for="(material, materialIndex) in part.materials" :key="materialIndex">
+                  <input type="number" v-model.number="material.cost" placeholder="Enter cost" />
+                </div>
+              </td>
+              <td>
+                <button type="button" @click="addMaterial(partIndex)" class="add-btn">Add Material</button>
+                <button type="button" @click="removePart(partIndex)" class="remove-btn">Remove Part</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button type="button" @click="addPart" class="add-btn">Add Part</button>
       </div>
-      <button type="submit">Save Product</button>
+      <button type="submit" class="submit-btn">{{ editMode ? 'Update Product' : 'Save Product' }}</button>
     </form>
     <div v-if="message" class="message">{{ message }}</div>
 
     <h2>Existing Products</h2>
-    <table v-if="products.length">
+    <table v-if="products.length" class="table">
       <thead>
         <tr>
           <th>Category</th>
@@ -60,7 +79,8 @@
             </ul>
           </td>
           <td>
-            <button type="button" @click="deleteProduct(productIndex)">Delete</button>
+            <button type="button" @click="editProduct(productIndex)" class="action-btn">Edit</button>
+            <button type="button" @click="deleteProduct(productIndex)" class="action-btn">Delete</button>
           </td>
         </tr>
       </tbody>
@@ -68,7 +88,7 @@
     <div v-else>No products found.</div>
   </div>
 </template>
-  
+
 <script>
 import axios from 'axios';
 
@@ -82,6 +102,8 @@ export default {
         productType: '',
         parts: []
       },
+      editMode: false,
+      editIndex: null,
       message: ''
     };
   },
@@ -130,8 +152,13 @@ export default {
           productType: this.product.productType,
           parts: this.product.parts
         };
-        await axios.post('http://localhost:3000/products', newProduct);
-        this.message = 'Product saved successfully!';
+        if (this.editMode) {
+          await axios.put(`http://localhost:3000/products/${this.products[this.editIndex]._id}`, newProduct);
+          this.message = 'Product updated successfully!';
+        } else {
+          await axios.post('http://localhost:3000/products', newProduct);
+          this.message = 'Product saved successfully!';
+        }
         this.resetForm();
         await this.fetchProducts(); // Fetch the updated list of products
       } catch (err) {
@@ -150,15 +177,24 @@ export default {
         console.error(err);
       }
     },
+    editProduct(productIndex) {
+      const product = this.products[productIndex];
+      this.product = JSON.parse(JSON.stringify(product)); // Deep copy to avoid mutating original data
+      this.editMode = true;
+      this.editIndex = productIndex;
+    },
     resetForm() {
       this.product = {
         category: '',
         productType: '',
         parts: []
       };
+      this.editMode = false;
+      this.editIndex = null;
     },
-      getCategoryName(category) {
-      return category ? category.name : 'Unknown';
+    getCategoryName(category) {
+      const foundCategory = this.categories.find(cat => cat._id === category);
+      return foundCategory ? foundCategory.name : 'Unknown';
     }
   },
   async mounted() {
@@ -168,21 +204,63 @@ export default {
 };
 </script>
 
-  
-  <style scoped>
-  .message {
-    color: green;
-  }
-  label {
-    display: block;
-    margin-top: 10px;
-  }
-  input, select {
-    display: block;
-    margin-top: 5px;
-  }
-  button {
-    margin-top: 10px;
-  }
-  </style>
-  
+<style scoped>
+.product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-btn, .remove-btn, .submit-btn, .action-btn {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.add-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.remove-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.submit-btn {
+  background-color: #008cba;
+  color: white;
+  align-self: flex-start;
+}
+
+.action-btn {
+  background-color: #ffc107;
+  color: black;
+  margin-right: 0.5rem;
+}
+
+.message {
+  color: green;
+  margin-top: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: left;
+}
+</style>
