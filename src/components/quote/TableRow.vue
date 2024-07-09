@@ -1,15 +1,15 @@
 <template>
   <tr v-for="(part, partIndex) in localRow.parts" :key="partIndex">
     <td v-if="partIndex === 0" :rowspan="localRow.parts.length">
-      <select v-model="localRow.selectedCategory" @change="handleCategoryChange">
+      <select v-model="localRow.selectedCategoryId" @change="handleCategoryChange">
         <option value="" disabled>Select Category</option>
         <option v-for="category in categories" :key="category._id" :value="category._id">{{ category.name }}</option>
       </select>
     </td>
     <td v-if="partIndex === 0" :rowspan="localRow.parts.length">
-      <select v-model="localRow.selectedProduct" @change="handleProductChange">
+      <select v-model="localRow.selectedProductId" @change="handleProductChange">
         <option value="" disabled>Select Product</option>
-        <option v-for="productByCatagory in productsByCatagory" :key="productByCatagory._id" :value="productByCatagory._id">{{ productByCatagory.productType }}</option>
+        <option v-for="product in productsByCategory" :key="product._id" :value="product._id">{{ product.productType }}</option>
       </select>
     </td>
     <td>{{ part.name }}</td>
@@ -59,7 +59,9 @@ export default {
   data() {
     return {
       localRow: this.row ? JSON.parse(JSON.stringify(this.row)) : { parts: [] },
-      productsByCatagory: [] // Local state for filtered products
+      productsByCategory: [], // Local state for filtered products
+      selectedCategoryName: '',
+      selectedProductName: ''
     };
   },
   watch: {
@@ -69,30 +71,34 @@ export default {
       },
       deep: true
     },
-    'localRow.selectedCategory'(newCategory) {
-      console.log('Selected category changed:', newCategory);
+    'localRow.selectedCategoryId'(newCategoryId) {
+      console.log('Selected category changed:', newCategoryId);
       this.handleCategoryChange();
     },
-    'localRow.selectedProduct'(newProduct) {
-      console.log('Selected product changed:', newProduct);
+    'localRow.selectedProductId'(newProductId) {
+      console.log('Selected product changed:', newProductId);
     }
   },
   methods: {
     async handleCategoryChange() {
-      console.log('Category changed to:', this.localRow.selectedCategory);
-      this.localRow.selectedProduct = '';
+      console.log('Category changed to:', this.localRow.selectedCategoryId);
+      const selectedCategory = this.categories.find(category => category._id === this.localRow.selectedCategoryId);
+      this.selectedCategoryName = selectedCategory ? selectedCategory.name : '';
+      this.localRow.selectedProductId = '';
+      this.localRow.selectedCategoryName = this.selectedCategoryName;
       try {
-        const productsByCatagory = await fetchProductsByCategory(this.localRow.selectedCategory);
-        this.productsByCatagory = productsByCatagory; // Update local state
+        const productsByCategory = await fetchProductsByCategory(this.localRow.selectedCategoryId);
+        this.productsByCategory = productsByCategory; // Update local state
       } catch (error) {
         console.error('Error fetching products:', error);
       }
       this.$emit('update-row', this.index, this.localRow);
     },
     handleProductChange() {
-      console.log('Product changed to:', this.localRow.selectedProduct);
-      const selectedProduct = this.productsByCatagory.find(product => product._id === this.localRow.selectedProduct);
+      console.log('Product changed to:', this.localRow.selectedProductId);
+      const selectedProduct = this.productsByCategory.find(product => product._id === this.localRow.selectedProductId);
       if (selectedProduct) {
+        this.selectedProductName = selectedProduct.productType;
         this.localRow.parts = selectedProduct.parts.map(part => ({
           ...part,
           materials: part.materials.map(material => ({ ...material })),
@@ -106,6 +112,7 @@ export default {
             coefficient: this.defaults.coefficient
           }
         }));
+        this.localRow.selectedProductName = this.selectedProductName;
       }
       this.$emit('update-row', this.index, this.localRow);
     },
@@ -135,4 +142,3 @@ th {
   padding: 8px; /* Add padding to table headers */
 }
 </style>
-
