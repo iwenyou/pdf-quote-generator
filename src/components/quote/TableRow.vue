@@ -14,10 +14,13 @@
     </td>
     <td>{{ part.name }}</td>
     <td>
-      <input type="text" v-model="part.materials[0].name" placeholder="Enter material name" />
+      <select v-model="part.selectedMaterial" @change="handleMaterialChange(partIndex)">
+        <option value="" disabled>Select Material</option>
+        <option v-for="material in part.materials" :key="material.name" :value="material.name">{{ material.name }}</option>
+      </select>
     </td>
     <td>
-      <input type="number" v-model.number="part.materials[0].cost" placeholder="Enter cost" />
+      <input type="number" v-model.number="part.selectedMaterialCost" placeholder="Enter cost" />
     </td>
     <td>
       <input type="number" v-model.number="part.size.height" placeholder="Height" />
@@ -110,10 +113,18 @@ export default {
           count: {
             number: this.defaults.number,
             coefficient: this.defaults.coefficient
-          }
+          },
+          selectedMaterial: '', // Add selected material
+          selectedMaterialCost: 0 // Add selected material cost
         }));
         this.localRow.selectedProductName = this.selectedProductName;
       }
+      this.$emit('update-row', this.index, this.localRow);
+    },
+    handleMaterialChange(partIndex) {
+      const selectedPart = this.localRow.parts[partIndex];
+      const selectedMaterial = selectedPart.materials.find(material => material.name === selectedPart.selectedMaterial);
+      selectedPart.selectedMaterialCost = selectedMaterial ? selectedMaterial.cost : 0;
       this.$emit('update-row', this.index, this.localRow);
     },
     deletePart(partIndex) {

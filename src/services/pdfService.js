@@ -14,9 +14,6 @@ export function generatePDF(rows) {
   const imgData = 'data:image/jpeg;base64,...'; // Base64 encoded image data
   doc.addImage(imgData, 'JPEG', 15, 10, 50, 25);
 
-  // Add some Chinese text to verify
-  //doc.text('测试中文字符', 10, 40);
-
   // Add table with quote details
   const tableColumn = ['Category', 'Product Type', 'Part Name', 'Material Name', 'Cost', 'Height', 'Width', 'Thickness', 'Number', 'Coefficient'];
   const tableRows = [];
