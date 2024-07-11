@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import './NotoSansSC'; // Ensure this path is correct
 
-export function generatePDF(rows) {
+export function generatePDF(formData,rows) {
   const doc = new jsPDF();
 
   // Set the custom font and size
@@ -13,6 +13,11 @@ export function generatePDF(rows) {
   // Add header image
   const imgData = 'data:image/jpeg;base64,...'; // Base64 encoded image data
   doc.addImage(imgData, 'JPEG', 15, 10, 50, 25);
+
+  // Add client details
+  doc.text(20, 50, `Name: ${formData.client.name}`);
+  doc.text(20, 60, `Address: ${formData.client.address}`);
+  doc.text(20, 70, `Date: ${new Date().toLocaleDateString()}`);
 
   // Add table with quote details
   const tableColumn = ['Category', 'Product Type', 'Part Name', 'Material Name', 'Cost', 'Height', 'Width', 'Thickness', 'Number', 'Coefficient'];

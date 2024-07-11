@@ -8,6 +8,7 @@
         :categories="categories"
         :products="products"
         :defaults="defaults"
+        :formData="formData"
         @add-row="addRow"
         @update-row="updateRow"
         @delete-row="deleteRow"
@@ -18,7 +19,7 @@
 </template>
 
 <script>
-import { getInitialData,initializeData, addRow, updateRow, deleteRow, updateClient, generateQuote } from '@/services/quoteService';
+import { getInitialData, initializeData, addRow, updateRow, deleteRow, updateClient, generateQuote } from '@/services/quoteService';
 import ClientDetails from './quote/ClientDetails.vue';
 import QuoteTable from './quote/QuoteTable.vue';
 
@@ -56,4 +57,3 @@ export default {
 </script>
 
 <style src="@/styles/TableStyles.css"></style>
-

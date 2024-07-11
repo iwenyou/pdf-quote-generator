@@ -40,7 +40,7 @@
 
 <script>
 import TableRow from './TableRow.vue';
-import { generatePDF } from '@/services/pdfService'; // Adjust this import based on where your service file is located
+import { generatePDF } from '@/services/pdfService';
 
 export default {
   components: {
@@ -66,6 +66,11 @@ export default {
       type: Object,
       required: true,
       default: () => ({})
+    },
+    formData: {
+      type: Object,
+      required: true,
+      default: () => ({})
     }
   },
   methods: {
@@ -79,7 +84,7 @@ export default {
       this.$emit('delete-row', index);
     },
     generatePDF() {
-      generatePDF(this.rows); // Adjust based on how you pass data to generate the PDF
+      generatePDF(this.formData, this.rows);
     }
   }
 };

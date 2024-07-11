@@ -47,7 +47,7 @@ export function deleteRow(context, index) {
 }
 
 export function updateClient(context, { field, value }) {
-  context.$set(context.formData.client, field, value);
+  context.formData.client[field] = value;
 }
 
 export async function generateQuote(context) {
@@ -61,23 +61,23 @@ export async function generateQuote(context) {
 }
 
 export function getInitialData() {
-    return {
-      formData: {
-        client: {
-          name: '',
-          address: ''
-        }
-      },
-      categories: [],
-      products: [],
-      defaults: {
-        height: 0,
-        width: 0,
-        thickness: 0,
-        number: 0,
-        coefficient: 0
-      },
-      rows: [],
-      error: ''
-    };
-  }
+  return {
+    formData: {
+      client: {
+        name: '',
+        address: ''
+      }
+    },
+    categories: [],
+    products: [],
+    defaults: {
+      height: 0,
+      width: 0,
+      thickness: 0,
+      number: 0,
+      coefficient: 0
+    },
+    rows: [],
+    error: ''
+  };
+}

@@ -6,37 +6,25 @@ export async function fetchCategories() {
 }
 
 export async function fetchProducts() {
-    try {
-        const response = await axios.get('http://localhost:3000/products');
-        console.log(response.data);
-        return response.data;
-      } catch (err) {
-        console.error('Error fetching products:', err);
-      }
-  }
-
-export async function fetchProductsByCategory(categoryId) {
-    try {
-        const response = await axios.get(`http://localhost:3000/products?category=${categoryId}`);
-        console.log("fetchProductsByCategory: ",  response.data)
-        return response.data;
-      } catch (err) {
-        console.error('Error fetching products by categoryId:', err);
-      }
+  const response = await axios.get('http://localhost:3000/products');
+  return response.data;
 }
 
 export async function fetchDefaults() {
   const response = await axios.get('http://localhost:3000/defaults');
-  return response.data || {
-    height: 0,
-    width: 0,
-    thickness: 0,
-    number: 0,
-    coefficient: 0
-  };
+  return response.data;
 }
 
 export async function saveQuote(formData, rows) {
-  const response = await axios.post('http://localhost:3000/quotes', { ...formData, rows });
+  const quoteData = {
+    client: formData.client,
+    rows: rows,
+    date: new Date()
+  };
+  await axios.post('http://localhost:3000/quotes', quoteData);
+}
+
+export async function fetchProductsByCategory(categoryId) {
+  const response = await axios.get(`http://localhost:3000/products?category=${categoryId}`);
   return response.data;
 }
