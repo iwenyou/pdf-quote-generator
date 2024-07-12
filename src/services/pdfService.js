@@ -1,8 +1,8 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import './NotoSansSC'; // Ensure this path is correct
+import './NotoSansSC';
 
-export function generatePDF(formData,rows) {
+export function generatePDF(formData, rows) {
   const doc = new jsPDF();
 
   // Set the custom font and size
@@ -23,25 +23,21 @@ export function generatePDF(formData,rows) {
   const tableColumn = ['Category', 'Product Type', 'Part Name', 'Material Name', 'Cost', 'Height', 'Width', 'Thickness', 'Number', 'Coefficient'];
   const tableRows = [];
 
-  console.log('Rows:', rows);
-
   rows.forEach(row => {
     row.parts.forEach(part => {
-      part.materials.forEach(material => {
-        const dataRow = [
-          row.selectedCategoryName, // Use the name instead of ID
-          row.selectedProductName,  // Use the name instead of ID
-          part.name,
-          material.name,
-          material.cost,
-          part.size.height,
-          part.size.width,
-          part.size.thickness,
-          part.count.number,
-          part.count.coefficient
-        ];
-        tableRows.push(dataRow);
-      });
+      const dataRow = [
+        row.selectedCategoryName, // Use the name instead of ID
+        row.selectedProductName,  // Use the name instead of ID
+        part.name,
+        part.selectedMaterial,   // Use the selected material
+        part.selectedMaterialCost, // Use the cost of the selected material
+        part.size.height,
+        part.size.width,
+        part.size.thickness,
+        part.count.number,
+        part.count.coefficient
+      ];
+      tableRows.push(dataRow);
     });
   });
 

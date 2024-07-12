@@ -62,7 +62,7 @@ export default {
   data() {
     return {
       localRow: this.row ? JSON.parse(JSON.stringify(this.row)) : { parts: [] },
-      productsByCategory: [],
+      productsByCategory: [], // Local state for filtered products
       selectedCategoryName: '',
       selectedProductName: ''
     };
@@ -91,7 +91,7 @@ export default {
       this.localRow.selectedCategoryName = this.selectedCategoryName;
       try {
         const productsByCategory = await fetchProductsByCategory(this.localRow.selectedCategoryId);
-        this.productsByCategory = productsByCategory;
+        this.productsByCategory = productsByCategory; // Update local state
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -114,8 +114,8 @@ export default {
             number: this.defaults.number,
             coefficient: this.defaults.coefficient
           },
-          selectedMaterial: '',
-          selectedMaterialCost: 0
+          selectedMaterial: '', // Add selected material
+          selectedMaterialCost: 0 // Add selected material cost
         }));
         this.localRow.selectedProductName = this.selectedProductName;
       }
@@ -141,15 +141,15 @@ export default {
 
 <style scoped>
 select, input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 5px;
+  width: 100%; /* Ensure full width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  padding: 5px; /* Add some padding for better appearance */
 }
 td {
-  border: 1px solid black;
-  padding: 8px;
+  border: 1px solid black; /* Add border to td for proper table alignment */
+  padding: 8px; /* Add padding to table cells */
 }
 th {
-  padding: 8px;
+  padding: 8px; /* Add padding to table headers */
 }
 </style>
