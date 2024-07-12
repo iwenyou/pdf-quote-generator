@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import './NotoSansSC';
 
-export function generatePDF(formData, rows) {
+export function generatePDF(formData, spaces) {
   const doc = new jsPDF();
 
   // Set the custom font and size
@@ -20,24 +20,28 @@ export function generatePDF(formData, rows) {
   doc.text(20, 70, `Date: ${new Date().toLocaleDateString()}`);
 
   // Add table with quote details
-  const tableColumn = ['Category', 'Product Type', 'Part Name', 'Material Name', 'Cost', 'Height', 'Width', 'Thickness', 'Number', 'Coefficient'];
+  const tableColumn = ['Space', 'Space Name', 'Category', 'Product Type', 'Part Name', 'Material Name', 'Cost', 'Height', 'Width', 'Thickness', 'Number', 'Coefficient'];
   const tableRows = [];
 
-  rows.forEach(row => {
-    row.parts.forEach(part => {
-      const dataRow = [
-        row.selectedCategoryName, // Use the name instead of ID
-        row.selectedProductName,  // Use the name instead of ID
-        part.name,
-        part.selectedMaterial,   // Use the selected material
-        part.selectedMaterialCost, // Use the cost of the selected material
-        part.size.height,
-        part.size.width,
-        part.size.thickness,
-        part.count.number,
-        part.count.coefficient
-      ];
-      tableRows.push(dataRow);
+  spaces.forEach((space, spaceIndex) => {
+    space.products.forEach(product => {
+      product.parts.forEach(part => {
+        const dataRow = [
+          spaceIndex + 1,
+          space.name,
+          product.selectedCategoryName,
+          product.selectedProductName,
+          part.name,
+          part.selectedMaterial,
+          part.selectedMaterialCost,
+          part.size.height,
+          part.size.width,
+          part.size.thickness,
+          part.count.number,
+          part.count.coefficient
+        ];
+        tableRows.push(dataRow);
+      });
     });
   });
 
@@ -47,14 +51,7 @@ export function generatePDF(formData, rows) {
     styles: { font: 'NotoSansSC', fontStyle: 'normal' }, // Ensure font is used in the table
     headStyles: { font: 'NotoSansSC', fontStyle: 'normal' }, // Apply to header
     bodyStyles: { font: 'NotoSansSC', fontStyle: 'normal' }, // Apply to body
-    columnStyles: {
-      0: { font: 'NotoSansSC', fontStyle: 'normal' }, // Category
-      1: { font: 'NotoSansSC', fontStyle: 'normal' }, // Product Type
-      2: { font: 'NotoSansSC', fontStyle: 'normal' }, // Part Name
-      3: { font: 'NotoSansSC', fontStyle: 'normal' }, // Material Name
-      // Add more if needed
-    },
-    startY: 70
+    startY: 80
   });
 
   // Save the PDF

@@ -6,8 +6,8 @@ export async function initializeData(context) {
     context.categories = await fetchCategories();
     context.products = await fetchProducts();
     context.defaults = await fetchDefaults();
-    if (context.rows.length === 0) {
-      addRow(context);
+    if (context.spaces.length === 0) {
+      addSpace(context);
     }
   } catch (error) {
     context.error = 'Failed to initialize data.';
@@ -15,35 +15,36 @@ export async function initializeData(context) {
   }
 }
 
-export function addRow(context) {
-  context.rows.push({
-    selectedCategory: '',
-    selectedProduct: '',
-    parts: [{
+export function addSpace(context) {
+  context.spaces.push({
+    name: '',
+    products: [{
       name: '',
       materials: [{
         name: '',
         cost: 0
       }],
       size: {
-        height: context.defaults.height,
-        width: context.defaults.width,
-        thickness: context.defaults.thickness
+        height: context.defaults.height || 0,
+        width: context.defaults.width || 0,
+        thickness: context.defaults.thickness || 0
       },
       count: {
-        number: context.defaults.number,
-        coefficient: context.defaults.coefficient
-      }
+        number: context.defaults.number || 0,
+        coefficient: context.defaults.coefficient || 0
+      },
+      selectedMaterial: '',
+      selectedMaterialCost: 0
     }]
   });
 }
 
-export function updateRow(context, index, updatedRow) {
-  context.rows.splice(index, 1, { ...updatedRow });
+export function updateSpace(context, index, updatedSpace) {
+  context.spaces.splice(index, 1, { ...updatedSpace });
 }
 
-export function deleteRow(context, index) {
-  context.rows.splice(index, 1);
+export function deleteSpace(context, index) {
+  context.spaces.splice(index, 1);
 }
 
 export function updateClient(context, { field, value }) {
@@ -52,8 +53,8 @@ export function updateClient(context, { field, value }) {
 
 export async function generateQuote(context) {
   try {
-    await saveQuote(context.formData, context.rows);
-    generatePDF(context.formData, context.rows);
+    await saveQuote(context.formData, context.spaces);
+    generatePDF(context.formData, context.spaces);
   } catch (error) {
     context.error = 'An error occurred while generating the PDF.';
     console.error(error);
@@ -77,7 +78,7 @@ export function getInitialData() {
       number: 0,
       coefficient: 0
     },
-    rows: [],
+    spaces: [],
     error: ''
   };
 }

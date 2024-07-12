@@ -7,6 +7,8 @@
     <table class="table">
       <thead>
         <tr>
+          <th>Space</th>
+          <th>Space Name</th>
           <th>Category</th>
           <th>Product Type</th>
           <th>Part Name</th>
@@ -22,19 +24,19 @@
       </thead>
       <tbody>
         <TableRow
-          v-for="(row, rowIndex) in rows"
-          :key="rowIndex"
-          :row="row"
+          v-for="(space, spaceIndex) in spaces"
+          :key="spaceIndex"
+          :space="space"
           :categories="categories"
           :products="products"
           :defaults="defaults"
-          :index="rowIndex"
-          @update-row="updateRow"
-          @delete-row="deleteRow"
+          :index="spaceIndex"
+          @update-space="updateSpace"
+          @delete-space="deleteSpace"
         />
       </tbody>
     </table>
-    <button type="button" @click="addRow">Add Row</button>
+    <button type="button" @click="addSpace">Add Space</button>
   </div>
 </template>
 
@@ -47,7 +49,7 @@ export default {
     TableRow
   },
   props: {
-    rows: {
+    spaces: {
       type: Array,
       required: true,
       default: () => []
@@ -74,17 +76,17 @@ export default {
     }
   },
   methods: {
-    addRow() {
-      this.$emit('add-row');
+    addSpace() {
+      this.$emit('add-space');
     },
-    updateRow(index, updatedRow) {
-      this.$emit('update-row', index, updatedRow);
+    updateSpace(index, updatedSpace) {
+      this.$emit('update-space', index, updatedSpace);
     },
-    deleteRow(index) {
-      this.$emit('delete-row', index);
+    deleteSpace(index) {
+      this.$emit('delete-space', index);
     },
     generatePDF() {
-      generatePDF(this.formData, this.rows);
+      generatePDF(this.formData, this.spaces);
     }
   }
 };

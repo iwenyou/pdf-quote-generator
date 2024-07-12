@@ -1,44 +1,50 @@
 <template>
-  <tr v-for="(part, partIndex) in localRow.parts" :key="partIndex">
-    <td v-if="partIndex === 0" :rowspan="localRow.parts.length">
-      <select v-model="localRow.selectedCategoryId" @change="handleCategoryChange">
+  <tr v-for="(product, productIndex) in localSpace.products" :key="productIndex">
+    <td v-if="productIndex === 0" :rowspan="localSpace.products.length">
+      {{ index + 1 }}
+    </td>
+    <td v-if="productIndex === 0" :rowspan="localSpace.products.length">
+      <input type="text" v-model="localSpace.name" @input="emitUpdate" placeholder="Enter space name" />
+    </td>
+    <td v-if="productIndex === 0" :rowspan="localSpace.products.length">
+      <select v-model="localSpace.selectedCategoryId" @change="handleCategoryChange">
         <option value="" disabled>Select Category</option>
         <option v-for="category in categories" :key="category._id" :value="category._id">{{ category.name }}</option>
       </select>
     </td>
-    <td v-if="partIndex === 0" :rowspan="localRow.parts.length">
-      <select v-model="localRow.selectedProductId" @change="handleProductChange">
+    <td v-if="productIndex === 0" :rowspan="localSpace.products.length">
+      <select v-model="localSpace.selectedProductId" @change="handleProductChange">
         <option value="" disabled>Select Product</option>
         <option v-for="product in productsByCategory" :key="product._id" :value="product._id">{{ product.productType }}</option>
       </select>
     </td>
-    <td>{{ part.name }}</td>
+    <td>{{ product.name }}</td>
     <td>
-      <select v-model="part.selectedMaterial" @change="handleMaterialChange(partIndex)">
+      <select v-model="product.selectedMaterial" @change="handleMaterialChange(productIndex)">
         <option value="" disabled>Select Material</option>
-        <option v-for="material in part.materials" :key="material.name" :value="material.name">{{ material.name }}</option>
+        <option v-for="material in product.materials" :key="material.name" :value="material.name">{{ material.name }}</option>
       </select>
     </td>
     <td>
-      <input type="number" v-model.number="part.selectedMaterialCost" placeholder="Enter cost" />
+      <input type="number" v-model.number="product.selectedMaterialCost" placeholder="Enter cost" @input="emitUpdate" />
     </td>
     <td>
-      <input type="number" v-model.number="part.size.height" placeholder="Height" />
+      <input type="number" v-model.number="product.size.height" placeholder="Height" @input="emitUpdate" />
     </td>
     <td>
-      <input type="number" v-model.number="part.size.width" placeholder="Width" />
+      <input type="number" v-model.number="product.size.width" placeholder="Width" @input="emitUpdate" />
     </td>
     <td>
-      <input type="number" v-model.number="part.size.thickness" placeholder="Thickness" />
+      <input type="number" v-model.number="product.size.thickness" placeholder="Thickness" @input="emitUpdate" />
     </td>
     <td>
-      <input type="number" v-model.number="part.count.number" placeholder="Number" />
+      <input type="number" v-model.number="product.count.number" placeholder="Number" @input="emitUpdate" />
     </td>
     <td>
-      <input type="number" v-model.number="part.count.coefficient" placeholder="Coefficient" />
+      <input type="number" v-model.number="product.count.coefficient" placeholder="Coefficient" @input="emitUpdate" />
     </td>
     <td>
-      <button type="button" @click="deletePart(partIndex)">Delete Part</button>
+      <button type="button" @click="deleteProduct(productIndex)">Delete Part</button>
     </td>
   </tr>
 </template>
@@ -48,92 +54,95 @@ import { fetchProductsByCategory } from '@/services/apiService';
 
 export default {
   props: {
-    row: {
+    space: {
       type: Object,
       required: true,
-      default: () => ({ parts: [] })
+      default: () => ({ products: [] })
     },
     categories: Array,
     products: Array,
     defaults: Object,
     index: Number
   },
-  emits: ['update-row', 'delete-row'],
+  emits: ['update-space', 'delete-space'],
   data() {
     return {
-      localRow: this.row ? JSON.parse(JSON.stringify(this.row)) : { parts: [] },
+      localSpace: this.space ? JSON.parse(JSON.stringify(this.space)) : { products: [] },
       productsByCategory: [], // Local state for filtered products
       selectedCategoryName: '',
       selectedProductName: ''
     };
   },
   watch: {
-    row: {
+    space: {
       handler(newValue) {
-        this.localRow = newValue ? JSON.parse(JSON.stringify(newValue)) : { parts: [] };
+        this.localSpace = newValue ? JSON.parse(JSON.stringify(newValue)) : { products: [] };
       },
       deep: true
     },
-    'localRow.selectedCategoryId'(newCategoryId) {
+    'localSpace.selectedCategoryId'(newCategoryId) {
       console.log('Selected category changed:', newCategoryId);
       this.handleCategoryChange();
     },
-    'localRow.selectedProductId'(newProductId) {
+    'localSpace.selectedProductId'(newProductId) {
       console.log('Selected product changed:', newProductId);
     }
   },
   methods: {
     async handleCategoryChange() {
-      console.log('Category changed to:', this.localRow.selectedCategoryId);
-      const selectedCategory = this.categories.find(category => category._id === this.localRow.selectedCategoryId);
+      console.log('Category changed to:', this.localSpace.selectedCategoryId);
+      const selectedCategory = this.categories.find(category => category._id === this.localSpace.selectedCategoryId);
       this.selectedCategoryName = selectedCategory ? selectedCategory.name : '';
-      this.localRow.selectedProductId = '';
-      this.localRow.selectedCategoryName = this.selectedCategoryName;
+      this.localSpace.selectedProductId = '';
+      this.localSpace.selectedCategoryName = this.selectedCategoryName;
       try {
-        const productsByCategory = await fetchProductsByCategory(this.localRow.selectedCategoryId);
+        const productsByCategory = await fetchProductsByCategory(this.localSpace.selectedCategoryId);
         this.productsByCategory = productsByCategory; // Update local state
       } catch (error) {
         console.error('Error fetching products:', error);
       }
-      this.$emit('update-row', this.index, this.localRow);
+      this.emitUpdate();
     },
     handleProductChange() {
-      console.log('Product changed to:', this.localRow.selectedProductId);
-      const selectedProduct = this.productsByCategory.find(product => product._id === this.localRow.selectedProductId);
+      console.log('Product changed to:', this.localSpace.selectedProductId);
+      const selectedProduct = this.productsByCategory.find(product => product._id === this.localSpace.selectedProductId);
       if (selectedProduct) {
         this.selectedProductName = selectedProduct.productType;
-        this.localRow.parts = selectedProduct.parts.map(part => ({
+        this.localSpace.products = selectedProduct.parts.map(part => ({
           ...part,
           materials: part.materials.map(material => ({ ...material })),
           size: {
-            height: this.defaults.height,
-            width: this.defaults.width,
-            thickness: this.defaults.thickness
+            height: this.defaults.height || 0,
+            width: this.defaults.width || 0,
+            thickness: this.defaults.thickness || 0
           },
           count: {
-            number: this.defaults.number,
-            coefficient: this.defaults.coefficient
+            number: this.defaults.number || 0,
+            coefficient: this.defaults.coefficient || 0
           },
           selectedMaterial: '', // Add selected material
           selectedMaterialCost: 0 // Add selected material cost
         }));
-        this.localRow.selectedProductName = this.selectedProductName;
+        this.localSpace.selectedProductName = this.selectedProductName;
       }
-      this.$emit('update-row', this.index, this.localRow);
+      this.emitUpdate();
     },
-    handleMaterialChange(partIndex) {
-      const selectedPart = this.localRow.parts[partIndex];
-      const selectedMaterial = selectedPart.materials.find(material => material.name === selectedPart.selectedMaterial);
-      selectedPart.selectedMaterialCost = selectedMaterial ? selectedMaterial.cost : 0;
-      this.$emit('update-row', this.index, this.localRow);
+    handleMaterialChange(productIndex) {
+      const selectedProduct = this.localSpace.products[productIndex];
+      const selectedMaterial = selectedProduct.materials.find(material => material.name === selectedProduct.selectedMaterial);
+      selectedProduct.selectedMaterialCost = selectedMaterial ? selectedMaterial.cost : 0;
+      this.emitUpdate();
     },
-    deletePart(partIndex) {
-      this.localRow.parts.splice(partIndex, 1);
-      if (this.localRow.parts.length === 0) {
-        this.$emit('delete-row', this.index);
+    deleteProduct(productIndex) {
+      this.localSpace.products.splice(productIndex, 1);
+      if (this.localSpace.products.length === 0) {
+        this.$emit('delete-space', this.index);
       } else {
-        this.$emit('update-row', this.index, this.localRow);
+        this.emitUpdate();
       }
+    },
+    emitUpdate() {
+      this.$emit('update-space', this.index, JSON.parse(JSON.stringify(this.localSpace)));
     }
   }
 };

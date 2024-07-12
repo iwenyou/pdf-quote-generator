@@ -4,14 +4,14 @@
     <form @submit.prevent="generateQuote">
       <ClientDetails :client="formData.client" @update-client="updateClient" />
       <QuoteTable
-        :rows="rows"
+        :spaces="spaces"
         :categories="categories"
         :products="products"
         :defaults="defaults"
         :formData="formData"
-        @add-row="addRow"
-        @update-row="updateRow"
-        @delete-row="deleteRow"
+        @add-space="addSpace"
+        @update-space="updateSpace"
+        @delete-space="deleteSpace"
       />
     </form>
     <div v-if="error" class="error">{{ error }}</div>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { getInitialData, initializeData, addRow, updateRow, deleteRow, updateClient, generateQuote } from '@/services/quoteService';
+import { getInitialData, initializeData, addSpace, updateSpace, deleteSpace, updateClient, generateQuote } from '@/services/quoteService';
 import ClientDetails from './quote/ClientDetails.vue';
 import QuoteTable from './quote/QuoteTable.vue';
 
@@ -32,14 +32,14 @@ export default {
     return getInitialData();
   },
   methods: {
-    addRow() {
-      addRow(this);
+    addSpace() {
+      addSpace(this);
     },
-    updateRow(index, updatedRow) {
-      updateRow(this, index, updatedRow);
+    updateSpace(index, updatedSpace) {
+      updateSpace(this, index, updatedSpace);
     },
-    deleteRow(index) {
-      deleteRow(this, index);
+    deleteSpace(index) {
+      deleteSpace(this, index);
     },
     updateClient({ field, value }) {
       updateClient(this, { field, value });
