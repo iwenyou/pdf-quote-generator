@@ -54,7 +54,7 @@ export function updateClient(context, { field, value }) {
 export async function generateQuote(context) {
   try {
     await saveQuote(context.formData, context.spaces);
-    generatePDF(context.formData, context.spaces);
+    generatePDF(context.formData, context.spaces); // Pass both formData and spaces
   } catch (error) {
     context.error = 'An error occurred while generating the PDF.';
     console.error(error);
