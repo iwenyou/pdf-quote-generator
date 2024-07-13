@@ -86,6 +86,7 @@ export default {
       this.$emit('delete-space', index);
     },
     generatePDF() {
+      
       console.log('FormData:', this.formData); // Debugging log
       console.log('Spaces:', this.spaces); // Debugging log
       generatePDF(this.formData, this.spaces); // Pass both formData and spaces

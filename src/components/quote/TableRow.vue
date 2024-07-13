@@ -50,8 +50,14 @@
 </template>
 
 <script>
-import { fetchProductsByCategory } from '@/services/apiService';
-import { calculateValues } from '@/services/calculateService';
+import { 
+  handleCategoryChange, 
+  handleProductChange, 
+  handleMaterialChange, 
+  handleInputChange, 
+  deleteProduct, 
+  emitUpdate 
+} from '@/services/quoteService';
 
 export default {
   props: {
@@ -90,71 +96,23 @@ export default {
     }
   },
   methods: {
-    async handleCategoryChange() {
-      console.log('Category changed to:', this.localSpace.selectedCategoryId);
-      const selectedCategory = this.categories.find(category => category._id === this.localSpace.selectedCategoryId);
-      this.selectedCategoryName = selectedCategory ? selectedCategory.name : '';
-      this.localSpace.selectedProductId = '';
-      this.localSpace.selectedCategoryName = this.selectedCategoryName;
-      try {
-        const productsByCategory = await fetchProductsByCategory(this.localSpace.selectedCategoryId);
-        this.productsByCategory = productsByCategory; // Update local state
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      }
-      this.emitUpdate();
+    handleCategoryChange() {
+      handleCategoryChange(this);
     },
     handleProductChange() {
-      console.log('Product changed to:', this.localSpace.selectedProductId);
-      const selectedProduct = this.productsByCategory.find(product => product._id === this.localSpace.selectedProductId);
-      if (selectedProduct) {
-        this.selectedProductName = selectedProduct.productType;
-        this.localSpace.products = selectedProduct.parts.map(part => ({
-          ...part,
-          materials: part.materials.map(material => ({ ...material })),
-          size: {
-            height: this.defaults.height || 0,
-            width: this.defaults.width || 0,
-            thickness: this.defaults.thickness || 0
-          },
-          count: {
-            number: this.defaults.number || 0,
-            coefficient: this.defaults.coefficient || 0
-          },
-          selectedMaterial: '', // Add selected material
-          selectedMaterialCost: 0, // Add selected material cost
-          selectedProductName: this.selectedProductName // Add selected product name
-        }));
-        this.localSpace.selectedProductName = this.selectedProductName;
-      }
-      this.emitUpdate();
+      handleProductChange(this);
     },
     handleMaterialChange(productIndex) {
-      const selectedProduct = this.localSpace.products[productIndex];
-      const selectedMaterial = selectedProduct.materials.find(material => material.name === selectedProduct.selectedMaterial);
-      selectedProduct.selectedMaterialCost = selectedMaterial ? selectedMaterial.cost : 0;
-      this.emitUpdate();
+      handleMaterialChange(this, productIndex);
     },
     handleInputChange() {
-      this.calculateAndEmit();
-    },
-    calculateAndEmit() {
-      this.localSpace.products.forEach(product => {
-        const calculatedValues = calculateValues(product, this.defaults);
-        Object.assign(product, calculatedValues);
-      });
-      this.emitUpdate();
+      handleInputChange(this);
     },
     deleteProduct(productIndex) {
-      this.localSpace.products.splice(productIndex, 1);
-      if (this.localSpace.products.length === 0) {
-        this.$emit('delete-space', this.index);
-      } else {
-        this.emitUpdate();
-      }
+      deleteProduct(this, productIndex);
     },
     emitUpdate() {
-      this.$emit('update-space', this.index, JSON.parse(JSON.stringify(this.localSpace)));
+      emitUpdate(this);
     }
   }
 };
