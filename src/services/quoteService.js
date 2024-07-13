@@ -83,7 +83,12 @@ export function getInitialData() {
       width: 0,
       thickness: 0,
       number: 0,
-      coefficient: 0
+      coefficient: 0,
+      shippingRate: 0,
+      importTaxRate: 0,
+      storageFee: 0,
+      exchangeRate: 1,
+      partHeights: {} // Add part heights here if needed
     },
     spaces: [],
     error: ''
@@ -114,7 +119,7 @@ export function handleProductChange(context) {
       ...part,
       materials: part.materials.map(material => ({ ...material })),
       size: {
-        height: context.defaults.height || 0,
+        height: part.defaultHeight || context.defaults.height || 0,
         width: context.defaults.width || 0,
         thickness: context.defaults.thickness || 0
       },

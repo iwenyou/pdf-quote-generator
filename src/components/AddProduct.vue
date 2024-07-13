@@ -18,6 +18,7 @@
           <thead>
             <tr>
               <th>Part Name</th>
+              <th>Default Height</th>
               <th>Material Name</th>
               <th>Cost</th>
               <th>Actions</th>
@@ -27,6 +28,9 @@
             <tr v-for="(part, partIndex) in product.parts" :key="partIndex">
               <td>
                 <input type="text" v-model="part.name" placeholder="Enter part name" />
+              </td>
+              <td>
+                <input type="number" v-model.number="part.defaultHeight" placeholder="Enter default height" />
               </td>
               <td>
                 <div v-for="(material, materialIndex) in part.materials" :key="materialIndex" class="material-section">
@@ -69,7 +73,7 @@
           <td>
             <ul>
               <li v-for="part in product.parts" :key="part.name">
-                {{ part.name }}
+                {{ part.name }} (Default Height: {{ part.defaultHeight }})
                 <ul>
                   <li v-for="material in part.materials" :key="material.name">
                     {{ material.name }}: ${{ material.cost }}
@@ -130,6 +134,7 @@ export default {
     addPart() {
       this.product.parts.push({
         name: '',
+        defaultHeight: 0,
         materials: []
       });
     },

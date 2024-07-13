@@ -34,7 +34,7 @@
       <span v-if="!product.selectedMaterialCost && product.selectedMaterialCost !== 0" class="error">Required</span>
     </td>
     <td>
-      <input type="number" v-model.number="product.size.height" placeholder="Height" @input="handleInputChange" />
+      <input type="number" v-model.number="product.size.height" :placeholder="defaultHeight(product.name)" @input="handleInputChange" />
       <span v-if="!product.size.height && product.size.height !== 0" class="error">Required</span>
     </td>
     <td>
@@ -124,6 +124,9 @@ export default {
     },
     emitUpdate() {
       emitUpdate(this);
+    },
+    defaultHeight(partName) {
+      return this.defaults.partHeights && this.defaults.partHeights[partName] ? this.defaults.partHeights[partName] : this.defaults.height || 0;
     }
   }
 };
