@@ -26,22 +26,22 @@
       </select>
     </td>
     <td>
-      <input type="number" v-model.number="product.selectedMaterialCost" placeholder="Enter cost" @input="emitUpdate" />
+      <input type="number" v-model.number="product.selectedMaterialCost" placeholder="Enter cost" @input="handleInputChange" />
     </td>
     <td>
-      <input type="number" v-model.number="product.size.height" placeholder="Height" @input="emitUpdate" />
+      <input type="number" v-model.number="product.size.height" placeholder="Height" @input="handleInputChange" />
     </td>
     <td>
-      <input type="number" v-model.number="product.size.width" placeholder="Width" @input="emitUpdate" />
+      <input type="number" v-model.number="product.size.width" placeholder="Width" @input="handleInputChange" />
     </td>
     <td>
-      <input type="number" v-model.number="product.size.thickness" placeholder="Thickness" @input="emitUpdate" />
+      <input type="number" v-model.number="product.size.thickness" placeholder="Thickness" @input="handleInputChange" />
     </td>
     <td>
-      <input type="number" v-model.number="product.count.number" placeholder="Number" @input="emitUpdate" />
+      <input type="number" v-model.number="product.count.number" placeholder="Number" @input="handleInputChange" />
     </td>
     <td>
-      <input type="number" v-model.number="product.count.coefficient" placeholder="Coefficient" @input="emitUpdate" />
+      <input type="number" v-model.number="product.count.coefficient" placeholder="Coefficient" @input="handleInputChange" />
     </td>
     <td>
       <button type="button" @click="deleteProduct(productIndex)">Delete Part</button>
@@ -51,6 +51,7 @@
 
 <script>
 import { fetchProductsByCategory } from '@/services/apiService';
+import { calculateValues } from '@/services/calculateService';
 
 export default {
   props: {
@@ -121,7 +122,8 @@ export default {
             coefficient: this.defaults.coefficient || 0
           },
           selectedMaterial: '', // Add selected material
-          selectedMaterialCost: 0 // Add selected material cost
+          selectedMaterialCost: 0, // Add selected material cost
+          selectedProductName: this.selectedProductName // Add selected product name
         }));
         this.localSpace.selectedProductName = this.selectedProductName;
       }
@@ -131,6 +133,16 @@ export default {
       const selectedProduct = this.localSpace.products[productIndex];
       const selectedMaterial = selectedProduct.materials.find(material => material.name === selectedProduct.selectedMaterial);
       selectedProduct.selectedMaterialCost = selectedMaterial ? selectedMaterial.cost : 0;
+      this.emitUpdate();
+    },
+    handleInputChange() {
+      this.calculateAndEmit();
+    },
+    calculateAndEmit() {
+      this.localSpace.products.forEach(product => {
+        const calculatedValues = calculateValues(product, this.defaults);
+        Object.assign(product, calculatedValues);
+      });
       this.emitUpdate();
     },
     deleteProduct(productIndex) {
