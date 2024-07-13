@@ -2,7 +2,11 @@
   <div>
     <div class="header-container">
       <h2>Quote Details</h2>
-      <button type="button" @click="generatePDF" class="generate-pdf-button">Generate PDF</button>
+      <button 
+        type="button" 
+        @click="generatePDF" 
+        class="generate-pdf-button"
+        :disabled="hasValidationErrors">Generate PDF</button>
     </div>
     <table class="table">
       <thead>
@@ -42,7 +46,7 @@
 
 <script>
 import TableRow from './TableRow.vue';
-import { generatePDF } from '@/services/pdfService';
+import { generateQuote } from '@/services/quoteService';
 
 export default {
   components: {
@@ -71,9 +75,13 @@ export default {
     },
     formData: {
       type: Object,
-      required: true,
-      default: () => ({})
+      required: true
     }
+  },
+  data() {
+    return {
+      error: ''
+    };
   },
   methods: {
     addSpace() {
@@ -86,10 +94,23 @@ export default {
       this.$emit('delete-space', index);
     },
     generatePDF() {
-      
-      console.log('FormData:', this.formData); // Debugging log
-      console.log('Spaces:', this.spaces); // Debugging log
-      generatePDF(this.formData, this.spaces); // Pass both formData and spaces
+      generateQuote(this);
+    }
+  },
+  computed: {
+    hasValidationErrors() {
+      return !this.spaces.every(space => {
+        return space.name && space.selectedCategoryId && space.selectedProductId &&
+          space.products.every(product => {
+            return product.selectedMaterial &&
+              product.selectedMaterialCost != null &&
+              product.size.height != null &&
+              product.size.width != null &&
+              product.size.thickness != null &&
+              product.count.number != null &&
+              product.count.coefficient != null;
+          });
+      });
     }
   }
 };

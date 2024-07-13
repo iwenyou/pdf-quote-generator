@@ -2,7 +2,6 @@ import { fetchCategories, fetchProducts, fetchDefaults, saveQuote, fetchProducts
 import { generatePDF } from './pdfService';
 import { calculateValues } from './calculateService';
 
-// Initialize data for the quote form
 export async function initializeData(context) {
   try {
     context.categories = await fetchCategories();
@@ -17,7 +16,6 @@ export async function initializeData(context) {
   }
 }
 
-// Add a new space to the quote form
 export function addSpace(context) {
   context.spaces.push({
     name: '',
@@ -42,33 +40,33 @@ export function addSpace(context) {
   });
 }
 
-// Update a specific space in the quote form
 export function updateSpace(context, index, updatedSpace) {
   context.spaces.splice(index, 1, { ...updatedSpace });
 }
 
-// Delete a specific space from the quote form
 export function deleteSpace(context, index) {
   context.spaces.splice(index, 1);
 }
 
-// Update client information in the quote form
 export function updateClient(context, { field, value }) {
   context.formData.client[field] = value;
 }
 
-// Generate a quote and save it
 export async function generateQuote(context) {
+  if (!validateInputs(context)) {
+    context.error = 'Please fill all required fields before generating the PDF.';
+    return;
+  }
+
   try {
     await saveQuote(context.formData, context.spaces);
-    generatePDF(context.formData, context.spaces); // Pass both formData and spaces
+    generatePDF(context.formData, context.spaces);
   } catch (error) {
     context.error = 'An error occurred while generating the PDF.';
     console.error(error);
   }
 }
 
-// Get initial data structure for the quote form
 export function getInitialData() {
   return {
     formData: {
@@ -91,7 +89,6 @@ export function getInitialData() {
   };
 }
 
-// Handle category change and update related products
 export async function handleCategoryChange(context) {
   console.log('Category changed to:', context.localSpace.selectedCategoryId);
   const selectedCategory = context.categories.find(category => category._id === context.localSpace.selectedCategoryId);
@@ -107,7 +104,6 @@ export async function handleCategoryChange(context) {
   emitUpdate(context);
 }
 
-// Handle product change and update related parts and materials
 export function handleProductChange(context) {
   console.log('Product changed to:', context.localSpace.selectedProductId);
   const selectedProduct = context.productsByCategory.find(product => product._id === context.localSpace.selectedProductId);
@@ -134,7 +130,6 @@ export function handleProductChange(context) {
   emitUpdate(context);
 }
 
-// Handle material change and update cost
 export function handleMaterialChange(context, productIndex) {
   const selectedProduct = context.localSpace.products[productIndex];
   const selectedMaterial = selectedProduct.materials.find(material => material.name === selectedProduct.selectedMaterial);
@@ -142,12 +137,10 @@ export function handleMaterialChange(context, productIndex) {
   emitUpdate(context);
 }
 
-// Handle input changes and calculate values
 export function handleInputChange(context) {
   calculateAndEmit(context);
 }
 
-// Calculate and update values for each product in the space
 export function calculateAndEmit(context) {
   context.localSpace.products.forEach(product => {
     const calculatedValues = calculateValues(product, context.defaults);
@@ -156,7 +149,6 @@ export function calculateAndEmit(context) {
   emitUpdate(context);
 }
 
-// Delete a product from the space
 export function deleteProduct(context, productIndex) {
   context.localSpace.products.splice(productIndex, 1);
   if (context.localSpace.products.length === 0) {
@@ -166,7 +158,26 @@ export function deleteProduct(context, productIndex) {
   }
 }
 
-// Emit an update for the space
 export function emitUpdate(context) {
   context.$emit('update-space', context.index, JSON.parse(JSON.stringify(context.localSpace)));
+}
+
+function validateInputs(context) {
+  for (const space of context.spaces) {
+    if (!space.name || !space.selectedCategoryId || !space.selectedProductId) return false;
+    for (const product of space.products) {
+      if (
+        !product.selectedMaterial ||
+        product.selectedMaterialCost == null ||
+        product.size.height == null ||
+        product.size.width == null ||
+        product.size.thickness == null ||
+        product.count.number == null ||
+        product.count.coefficient == null
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
