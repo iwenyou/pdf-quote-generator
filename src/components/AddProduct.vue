@@ -30,7 +30,7 @@
                 <input type="text" v-model="part.name" placeholder="Enter part name" />
               </td>
               <td>
-                <input type="number" v-model.number="part.defaultHeight" placeholder="Enter default height" />
+                <input type="text" v-model.number="part.defaultHeight" placeholder="Enter default height" />
               </td>
               <td>
                 <div v-for="(material, materialIndex) in part.materials" :key="materialIndex" class="material-section">
@@ -40,7 +40,7 @@
               </td>
               <td>
                 <div v-for="(material, materialIndex) in part.materials" :key="materialIndex">
-                  <input type="number" v-model.number="material.cost" placeholder="Enter cost" />
+                  <input type="text" v-model.number="material.cost" placeholder="Enter cost" />
                 </div>
               </td>
               <td>
