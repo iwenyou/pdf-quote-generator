@@ -53,6 +53,7 @@
       <input type="number" v-model.number="product.count.coefficient" placeholder="Coefficient" @input="handleInputChange" />
       <span v-if="!product.count.coefficient && product.count.coefficient !== 0" class="error">Required</span>
     </td>
+    <td>{{ product.displayedPrice.toFixed(2) }}</td>
     <td>
       <button type="button" @click="deleteProduct(productIndex)">Delete Part</button>
     </td>

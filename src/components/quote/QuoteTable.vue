@@ -23,6 +23,7 @@
           <th>Thickness</th>
           <th>Number</th>
           <th>Coefficient</th>
+          <th>Price</th>
           <th>Actions</th>
         </tr>
       </thead>

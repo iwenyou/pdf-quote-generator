@@ -35,7 +35,8 @@ export function addSpace(context) {
         coefficient: context.defaults.coefficient || 0
       },
       selectedMaterial: '',
-      selectedMaterialCost: 0
+      selectedMaterialCost: 0,
+      displayedPrice: 0
     }]
   });
 }
@@ -123,7 +124,8 @@ export function handleProductChange(context) {
       },
       selectedMaterial: '', // Add selected material
       selectedMaterialCost: 0, // Add selected material cost
-      selectedProductName: context.selectedProductName // Add selected product name
+      selectedProductName: context.selectedProductName, // Add selected product name
+      displayedPrice: 0 // Add displayed price
     }));
     context.localSpace.selectedProductName = context.selectedProductName;
   }
