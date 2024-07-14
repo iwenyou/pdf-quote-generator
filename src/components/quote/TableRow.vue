@@ -54,6 +54,9 @@
       <span v-if="!product.count.coefficient && product.count.coefficient !== 0" class="error">Required</span>
     </td>
     <td>{{ product.displayedPrice.toFixed(2) }}</td>
+    <td v-if="productIndex === 0" :rowspan="localSpace.products.length">
+      {{ totalDisplayedPrice.toFixed(2) }}
+    </td>
     <td>
       <button type="button" @click="deleteProduct(productIndex)">Delete Part</button>
     </td>
@@ -90,6 +93,11 @@ export default {
       selectedCategoryName: '',
       selectedProductName: ''
     };
+  },
+  computed: {
+    totalDisplayedPrice() {
+      return this.localSpace.products.reduce((sum, product) => sum + product.displayedPrice, 0);
+    }
   },
   watch: {
     space: {

@@ -23,7 +23,8 @@
           <th>Thickness</th>
           <th>Number</th>
           <th>Coefficient</th>
-          <th>Price</th>
+          <th>Displayed Price</th>
+          <th>Total Price</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -39,6 +40,11 @@
           @update-space="updateSpace"
           @delete-space="deleteSpace"
         />
+        <tr>
+          <td colspan="13"><strong>Total Quote Price</strong></td>
+          <td>{{ totalQuotePrice.toFixed(2) }}</td>
+          <td></td>
+        </tr>
       </tbody>
     </table>
     <button type="button" @click="addSpace">Add Space</button>
@@ -84,21 +90,13 @@ export default {
       error: ''
     };
   },
-  methods: {
-    addSpace() {
-      this.$emit('add-space');
-    },
-    updateSpace(index, updatedSpace) {
-      this.$emit('update-space', index, updatedSpace);
-    },
-    deleteSpace(index) {
-      this.$emit('delete-space', index);
-    },
-    generatePDF() {
-      generateQuote(this);
-    }
-  },
   computed: {
+    totalQuotePrice() {
+      return this.spaces.reduce((sum, space) => {
+        const totalSpacePrice = space.products.reduce((spaceSum, product) => spaceSum + product.displayedPrice, 0);
+        return sum + totalSpacePrice;
+      }, 0);
+    },
     hasValidationErrors() {
       return !this.spaces.every(space => {
         return space.name && space.selectedCategoryId && space.selectedProductId &&
@@ -112,6 +110,20 @@ export default {
               product.count.coefficient != null;
           });
       });
+    }
+  },
+  methods: {
+    addSpace() {
+      this.$emit('add-space');
+    },
+    updateSpace(index, updatedSpace) {
+      this.$emit('update-space', index, updatedSpace);
+    },
+    deleteSpace(index) {
+      this.$emit('delete-space', index);
+    },
+    generatePDF() {
+      generateQuote(this);
     }
   }
 };
