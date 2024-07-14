@@ -26,7 +26,6 @@ export function generatePDF(formData, spaces) {
   const tableRows = [];
   let totalQuotePrice = 0;
   let previousSpaceIndex = -1;
-  let rowSpanCount = 0;
 
   spaces.forEach((space, spaceIndex) => {
     let totalSpacePrice = 0;
@@ -52,7 +51,6 @@ export function generatePDF(formData, spaces) {
 
         // Add the rowspan property to the first occurrence of each space index
         if (spaceIndex !== previousSpaceIndex) {
-          rowSpanCount = space.products.length;
           previousSpaceIndex = spaceIndex;
         } else {
           dataRow[0] = '';
@@ -73,9 +71,10 @@ export function generatePDF(formData, spaces) {
     }
   });
 
-  // Add the total quote price row
+  // Add the total quote price row with merged cells and bold text
   tableRows.push([
-    '', '', '', '', '', '', '', '', '', '', 'Total Quote Price', totalQuotePrice.toFixed(2)
+    { content: 'Total Quote Price', colSpan: 11, styles: { halign: 'right', fontStyle: 'bold' } },
+    totalQuotePrice.toFixed(2)
   ]);
 
   doc.autoTable({
@@ -84,15 +83,7 @@ export function generatePDF(formData, spaces) {
     styles: { font: 'NotoSansSC', fontStyle: 'normal' }, // Ensure font is used in the table
     headStyles: { font: 'NotoSansSC', fontStyle: 'normal' }, // Apply to header
     bodyStyles: { font: 'NotoSansSC', fontStyle: 'normal' }, // Apply to body
-    startY: 80,
-    didDrawCell: (data) => {
-      if (data.column.index === 0 && data.row.section === 'body') {
-        if (data.row.index % rowSpanCount === 0) {
-          const rowSpan = rowSpanCount;
-          doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height * rowSpan, 'S');
-        }
-      }
-    }
+    startY: 80
   });
 
   // Save the PDF
